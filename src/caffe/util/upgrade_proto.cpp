@@ -14,8 +14,7 @@ namespace caffe {
 
 bool NetNeedsUpgrade(const NetParameter& net_param) {
   return NetNeedsV0ToV1Upgrade(net_param) || NetNeedsV1ToV2Upgrade(net_param)
-      || NetNeedsDataUpgrade(net_param) || NetNeedsInputUpgrade(net_param)
-      || NetNeedsBatchNormUpgrade(net_param);
+      || NetNeedsDataUpgrade(net_param) || NetNeedsInputUpgrade(net_param);
 }
 
 bool UpgradeNetAsNeeded(const string& param_file, NetParameter* param) {
@@ -71,14 +70,6 @@ bool UpgradeNetAsNeeded(const string& param_file, NetParameter* param) {
               << "input fields.";
     LOG(WARNING) << "Note that future Caffe releases will only support "
                  << "input layers and not input fields.";
-  }
-  // NetParameter uses old style batch norm layers; try to upgrade it.
-  if (NetNeedsBatchNormUpgrade(*param)) {
-    LOG(INFO) << "Attempting to upgrade batch norm layers using deprecated "
-              << "params: " << param_file;
-    UpgradeNetBatchNorm(param);
-    LOG(INFO) << "Successfully upgraded batch norm layers using deprecated "
-              << "params.";
   }
   return success;
 }
@@ -230,6 +221,12 @@ bool UpgradeV0LayerParameter(const V1LayerParameter& v0_layer_connection,
             v0_layer_param.num_output());
       } else if (type == "innerproduct") {
         layer_param->mutable_inner_product_param()->set_num_output(
+            v0_layer_param.num_output());
+      } else if (type == "rand_cat") {
+        layer_param->mutable_rand_cat_param()->set_num_output(
+            v0_layer_param.num_output());
+      } else if (type == "rand_cat_conv") {
+        layer_param->mutable_rand_cat_conv_param()->set_num_output(
             v0_layer_param.num_output());
       } else {
         LOG(ERROR) << "Unknown parameter num_output for layer type " << type;
@@ -581,8 +578,14 @@ V1LayerParameter_LayerType UpgradeV0LayerType(const string& type) {
     return V1LayerParameter_LayerType_LRN;
   } else if (type == "multinomial_logistic_loss") {
     return V1LayerParameter_LayerType_MULTINOMIAL_LOGISTIC_LOSS;
+  } else if (type == "normalize") {
+    return V1LayerParameter_LayerType_NORMALIZE;
   } else if (type == "pool") {
     return V1LayerParameter_LayerType_POOLING;
+  } else if (type == "rand_cat_conv") {
+    return V1LayerParameter_LayerType_RAND_CAT_CONV;
+  } else if (type == "rand_cat") {
+    return V1LayerParameter_LayerType_RAND_CAT;
   } else if (type == "relu") {
     return V1LayerParameter_LayerType_RELU;
   } else if (type == "sigmoid") {
@@ -927,10 +930,16 @@ const char* UpgradeV1LayerType(const V1LayerParameter_LayerType type) {
     return "MultinomialLogisticLoss";
   case V1LayerParameter_LayerType_MVN:
     return "MVN";
+  case V1LayerParameter_LayerType_NORMALIZE:
+    return "Normalize";
   case V1LayerParameter_LayerType_POOLING:
     return "Pooling";
   case V1LayerParameter_LayerType_POWER:
     return "Power";
+  case V1LayerParameter_LayerType_RAND_CAT_CONV:
+    return "RandCatConv";
+  case V1LayerParameter_LayerType_RAND_CAT:
+    return "RandCat";
   case V1LayerParameter_LayerType_RELU:
     return "ReLU";
   case V1LayerParameter_LayerType_SIGMOID:
@@ -998,35 +1007,6 @@ void UpgradeNetInput(NetParameter* net_param) {
   net_param->clear_input();
   net_param->clear_input_shape();
   net_param->clear_input_dim();
-}
-
-bool NetNeedsBatchNormUpgrade(const NetParameter& net_param) {
-  for (int i = 0; i < net_param.layer_size(); ++i) {
-    // Check if BatchNorm layers declare three parameters, as required by
-    // the previous BatchNorm layer definition.
-    if (net_param.layer(i).type() == "BatchNorm"
-        && net_param.layer(i).param_size() == 3) {
-      return true;
-    }
-  }
-  return false;
-}
-
-void UpgradeNetBatchNorm(NetParameter* net_param) {
-  for (int i = 0; i < net_param->layer_size(); ++i) {
-    // Check if BatchNorm layers declare three parameters, as required by
-    // the previous BatchNorm layer definition.
-    if (net_param->layer(i).type() == "BatchNorm"
-        && net_param->layer(i).param_size() == 3) {
-      // set lr_mult and decay_mult to zero. leave all other param intact.
-      for (int ip = 0; ip < net_param->layer(i).param_size(); ip++) {
-        ParamSpec* fixed_param_spec =
-          net_param->mutable_layer(i)->mutable_param(ip);
-        fixed_param_spec->set_lr_mult(0.f);
-        fixed_param_spec->set_decay_mult(0.f);
-      }
-    }
-  }
 }
 
 // Return true iff the solver contains any old solver_type specified as enums
