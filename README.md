@@ -1,3 +1,10 @@
+# Changes in the repository
+New layers added for the model:
+* [pixelwise normalization layer](https://github.com/Mayankm96/caffe/blob/6b2e078d082124a127fa1ce149bd75ebd29a9a4a/include/caffe/layers/normalize_layer.hpp)
+* [random concatenation layer (for skip netork)](https://github.com/Mayankm96/caffe/blob/6b2e078d082124a127fa1ce149bd75ebd29a9a4a/include/caffe/layers/rand_cat_layer.hpp)
+
+These layers have been taken from [https://github.com/aayushbansal/caffe](https://github.com/aayushbansal/caffe). However, they are now updated to the latest caffe version.
+
 # Caffe
 
 [![Build Status](https://travis-ci.org/BVLC/caffe.svg?branch=master)](https://travis-ci.org/BVLC/caffe)
@@ -37,9 +44,19 @@ The BAIR/BVLC reference models are released for unrestricted use.
 
 Please cite Caffe in your publications if it helps your research:
 
+```make
     @article{jia2014caffe,
       Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
       Journal = {arXiv preprint arXiv:1408.5093},
       Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
       Year = {2014}
     }
+
+
+@inproceedings{Bansal16,
+  title={Marr {R}evisited: 2{D}-3{D} Model Alignment via Surface Normal Prediction},
+  author={Bansal, Aayush and Russell, Bryan and Gupta, Abhinav},
+  booktitle={CVPR},
+  year={2016}
+}
+```
