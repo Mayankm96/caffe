@@ -1,7 +1,7 @@
 # Changes in the repository
 New layers added for the model:
 * [pixelwise normalization layer](https://github.com/Mayankm96/caffe/blob/6b2e078d082124a127fa1ce149bd75ebd29a9a4a/include/caffe/layers/normalize_layer.hpp)
-* [random concatenation layer (for skip netork)](https://github.com/Mayankm96/caffe/blob/6b2e078d082124a127fa1ce149bd75ebd29a9a4a/include/caffe/layers/rand_cat_layer.hpp)
+* [random concatenation layer (for skip network)](https://github.com/Mayankm96/caffe/blob/6b2e078d082124a127fa1ce149bd75ebd29a9a4a/include/caffe/layers/rand_cat_layer.hpp)
 
 These layers have been taken from [https://github.com/aayushbansal/caffe](https://github.com/aayushbansal/caffe). However, they are now updated to the latest caffe version.
 
