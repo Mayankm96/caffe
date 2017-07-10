@@ -219,10 +219,10 @@ class Parameters(object):
     to specify max pooling."""
 
     def __getattr__(self, name):
-       class Param:
+        class Param:
             def __getattr__(self, param_name):
                 return getattr(getattr(caffe_pb2, name + 'Parameter'), param_name)
-       return Param()
+        return Param()
 
 
 _param_names = param_name_dict()

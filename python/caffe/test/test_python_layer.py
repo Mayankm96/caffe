@@ -152,7 +152,7 @@ class TestPythonLayer(unittest.TestCase):
         net.copy_from(caffemodel_file)
         self.assertEqual(layer.blobs[0].data[0], 1)
         os.remove(caffemodel_file)
-        
+
         # Test weight sharing
         net2 = caffe.Net(net_file, caffe.TRAIN)
         net2.share_with(net)
